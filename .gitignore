@@ -3,3 +3,5 @@
 
 # develop
 venv
+test-local
+test-local.py
