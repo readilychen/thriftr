@@ -13,3 +13,9 @@ Copyright (c) 2014, Eleme, Inc.
 """
 
 __version__ = '0.0.1'
+
+
+class ThriftSyntaxError(Exception):
+    pass
+
+from .parser import parse

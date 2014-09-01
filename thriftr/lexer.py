@@ -3,9 +3,7 @@
 import sys
 from ply import lex
 
-
-class ThriftSyntaxError(Exception):
-    pass
+from . import ThriftSyntaxError
 
 
 literals = ':;,=*{}()<>[]'
@@ -18,7 +16,7 @@ tokens = (
     'LITERAL',
     # identifier
     'IDENTIFIER',
-    'SD_IDENTIFIER',
+    'ST_IDENTIFIER',
     # keywords
     'NAMESPACE',
     'INCLUDE',
@@ -268,7 +266,7 @@ def t_IDENTIFIER(t):
     return t
 
 
-def t_SD_IDENTIFIER(t):
+def t_ST_IDENTIFIER(t):
     r'[a-zA-Z-](\.[a-zA-Z_0-9-]|[a-zA-Z_0-9-])*'
     return t
 
