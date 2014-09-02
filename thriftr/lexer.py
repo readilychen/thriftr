@@ -1,6 +1,5 @@
 # coding=utf8
 
-import sys
 from ply import lex
 
 from . import ThriftSyntaxError
@@ -50,16 +49,6 @@ tokens = (
 
 
 t_ignore = ' \t\r'   # whitespace
-
-# comments
-# t_ignore_SILLYCOMM = r'\/\*\**\*\/'
-# t_ignore_MULTICOMM = r'\/\*[^*]\/*([^*/]|[^*]\/|\*[^/])*\**\*\/'
-# t_ignore_COMMENT = r'\/\/[^\n]*'
-# t_ignore_DOCTEXT = r'\/\*\*([^*/]|[^*]\/|\*[^/])*\**\*\/'
-# t_ignore_UNIXCOMMENT = r'\#[^\n]*'
-
-# keywords
-current_module = sys.modules[__name__]
 
 
 def t_error(t):
