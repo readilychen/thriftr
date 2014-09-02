@@ -59,7 +59,7 @@ def p_definition_unit(p):
 
 def p_const(p):
     '''const : CONST field_type IDENTIFIER '=' const_value '''
-    thrift.consts[p[3]] = p[2](p[5])
+    thrift.consts[p[3]] = p[2].cast(p[5])
 
 
 def p_const_value(p):
@@ -76,6 +76,7 @@ def p_const_value(p):
 
 def p_const_list(p):
     '''const_list : '[' const_value_seq ']' '''
+    p[0] = p[2]
 
 
 def p_const_value_seq(p):
@@ -83,10 +84,19 @@ def p_const_value_seq(p):
                        | const_value_seq ','
                        | const_value
                        |'''
+    if len(p) == 1:
+        p[0] = []
+    elif len(p) == 2:
+        p[0] = [p[1]]
+    elif len(p) == 3:
+        p[0] = p[1]
+    elif len(p) == 4:
+        p[0] = p[1] + [p[3]]
 
 
 def p_const_map(p):
     '''const_map : '{' const_map_seq '}' '''
+    p[0] = dict(p[2])
 
 
 def p_const_map_items(p):
@@ -95,9 +105,19 @@ def p_const_map_items(p):
                      | const_map_item
                      |'''
 
+    if len(p) == 1:
+        p[0] = []
+    elif len(p) == 2:
+        p[0] = [p[1]]
+    elif len(p) == 3:
+        p[0] = p[1]
+    elif len(p) == 4:
+        p[0] = p[1] + [p[3]]
+
 
 def p_const_map_item(p):
-    '''const_map_item : "'" const_value "'" ':' "'" const_value "'" '''
+    '''const_map_item : const_value ':'  const_value'''
+    p[0] = [p[1], p[3]]
 
 
 def p_typedef(p):
@@ -197,36 +217,28 @@ def p_base_type(p):
                  | STRING
                  | BINARY'''
 
-    if p[1] == 'bool':
-        p[0] = Bool
-    elif p[1] == 'i16':
-        p[0] = I16
-    elif p[1] == 'i32':
-        p[0] = I32
-    elif p[1] == 'i64':
-        p[0] = I64
-    elif p[1] == 'double':
-        p[0] = Double
-    elif p[1] == 'string':
-        p[0] = String
+    p[0] = BASE_TYPE_MAPS[p[1]]()
 
 
 def p_container_type(p):
     '''container_type : map_type
                       | list_type
                       | set_type'''
-
+    p[0] = p[1]
 
 def p_map_type(p):
     '''map_type : MAP '<' field_type ',' field_type '>' '''
+    p[0] = MapType(['map', p[3], p[5]])
 
 
 def p_list_type(p):
     '''list_type : LIST '<' field_type '>' '''
+    p[0] = ListType(['list', p[3]])
 
 
 def p_set_type(p):
     '''set_type : SET '<' field_type '>' '''
+    p[0] = SetType(['set', p[3]])
 
 
 def p_definition_type(p):

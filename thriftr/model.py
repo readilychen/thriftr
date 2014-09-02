@@ -1,6 +1,6 @@
 # coding=utf8
 
-from ._compat import long
+from ._compat import *
 
 
 class Thrift(dict):
@@ -46,36 +46,106 @@ class Thrift(dict):
         self.services = self['services'] = services
 
 
-class Bool(int):
-
-    def __init__(self, val):
-        super(Bool, self).__init__(val)
+class BaseType(str):
+    pass
 
 
-class I16(int):
+class BoolType(BaseType):
 
-    def __init__(self, val):
-        super(I16, self).__init__(val)
+    cast = bool
 
-
-class I32(int):
-
-    def __init__(self, val):
-        super(I32, self).__init__(val)
-
-class I64(long):
-
-    def __init__(self, val):
-        super(I64, self).__init__(val)
+    def __new__(self):
+        return str.__new__(self, 'bool')
 
 
-class Double(float):
+class ByteType(BaseType):
 
-    def __init__(self, val):
-        super(Double, self).__init__(val)
+    cast = int
+
+    def __new__(self):
+        return str.__new__(self, 'byte')
 
 
-class String(str):
+class I16Type(BaseType):
 
-    def __init__(self, val):
-        super(String, self).__init__(val)
+    cast = int
+
+    def __new__(self):
+        return str.__new__(self, 'i16')
+
+
+class I32Type(BaseType):
+
+    cast = int
+
+    def __new__(self):
+        return str.__new__(self, 'i32')
+
+
+class I64Type(BaseType):
+
+    cast = int
+
+    def __new__(self):
+        return str.__new__(self, 'i64')
+
+
+class DoubleType(BaseType):
+
+    cast = float
+
+    def __new__(self):
+        return str.__new__(self, 'double')
+
+
+class StringType(BaseType):
+
+    cast = str
+
+    def __new__(self):
+        return str.__new__(self, 'string')
+
+
+class BinaryType(BaseType):
+
+    cast = bytes_
+
+    def __new__(self):
+        return str.__new__(self, 'binary')
+
+
+class ContainerType(list):
+    pass
+
+
+class ListType(ContainerType):   # ['list', val_type]
+
+    def cast(self, data):
+        return map(self[1].cast, data)
+
+
+class MapType(ContainerType):  # ['map', k_type, v_type]
+
+    def cast(self, data):
+        dct = {}
+        keys = data.keys();
+
+        for key in keys:
+            dct[self[1].cast(key)] = self[2].cast(data[key])
+        return dct
+
+
+class SetType(ContainerType):  # ['set', v_type]
+    pass
+
+
+BASE_TYPE_MAPS = {
+    'bool': BoolType,
+    'byte': ByteType,
+    'i16': I16Type,
+    'i32': I32Type,
+    'i64': I64Type,
+    'double': DoubleType,
+    'string': StringType,
+    'binary': BinaryType
+}

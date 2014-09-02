@@ -3,6 +3,6 @@
 import sys
 
 if sys.version_info[0] < 3:
-    long = long
+    bytes_ = bytes
 else:
-    long = int
+    bytes_ = lambda x: bytes(x, 'utf8')
