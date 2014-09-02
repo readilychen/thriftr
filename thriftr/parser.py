@@ -117,8 +117,18 @@ def p_typedef(p):
 
 def p_enum(p):
     '''enum : ENUM IDENTIFIER '{' enum_seq '}' '''
-    thrift.enums[p[2]] = dict(p[4])
-    incrtor.num = 0
+
+    dct = dict(p[4])
+    num = 0
+    vals = dct.values()
+
+    for key in dct:
+        if dct[key] is None:
+            while num in vals:
+                num += 1
+            dct[key] = num
+
+    thrift.enums[p[2]] = dct
 
 
 def p_enum_seq(p):
@@ -135,7 +145,7 @@ def p_enum_item(p):
     if len(p) == 4:
         p[0] = [p[1], p[3]]
     elif len(p) == 2:
-        p[0] = [p[1], incrtor.incr()]
+        p[0] = [p[1], None]
 
 
 def p_struct(p):
@@ -292,15 +302,3 @@ def _parse_seq(p):
         p[0] = [p[1]] + p[2]
     elif len(p) == 1:
         p[0] = []
-
-
-class Incrtor(object):
-
-    def __init__(self):
-        self.num = 0
-
-    def incr(self):
-        self.num += 1
-        return self.num
-
-incrtor = Incrtor()

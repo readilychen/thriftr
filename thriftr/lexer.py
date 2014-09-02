@@ -9,7 +9,6 @@ literals = ':;,=*{}()<>[]'
 
 
 keywords = (
-    # keywords
     'namespace',
     'include',
     'void',
