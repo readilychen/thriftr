@@ -174,7 +174,7 @@ class Function(dict):
             throws = []
         self.type = self['type'] = type
         self.name = self['name'] = name
-        self.fields = self['field'] = fields
+        self.fields = self['fields'] = fields
         self.throws = self['throws'] = throws
         self.oneway = self['oneway'] = oneway
 

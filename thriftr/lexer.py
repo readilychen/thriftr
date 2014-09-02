@@ -8,52 +8,55 @@ from . import ThriftSyntaxError
 
 literals = ':;,=*{}()<>[]'
 
+
+keywords = (
+    # keywords
+    'namespace',
+    'include',
+    'void',
+    'bool',
+    'byte',
+    'i16',
+    'i32',
+    'i64',
+    'double',
+    'string',
+    'binary',
+    'map',
+    'list',
+    'set',
+    'oneway',
+    'typedef',
+    'struct',
+    'union',
+    'exception',
+    'extends',
+    'throws',
+    'service',
+    'enum',
+    'const',
+    'required',
+    'optional',
+)
+
+
 tokens = (
-    # literal constants
     'BOOLCONSTANT',
     'INTCONSTANT',
     'DUBCONSTANT',
     'LITERAL',
-    # identifier
     'IDENTIFIER',
-    # keywords
-    'NAMESPACE',
-    'INCLUDE',
-    'VOID',
-    'BOOL',
-    'BYTE',
-    'I16',
-    'I32',
-    'I64',
-    'DOUBLE',
-    'STRING',
-    'BINARY',
-    'MAP',
-    'LIST',
-    'SET',
-    'ONEWAY',
-    'TYPEDEF',
-    'STRUCT',
-    'UNION',
-    'EXCEPTION',
-    'EXTENDS',
-    'THROWS',
-    'SERVICE',
-    'ENUM',
-    'CONST',
-    'REQUIRED',
-    'OPTIONAL',
-    # 'REFERENCE',
-)
+) + tuple(map(lambda kw: kw.upper(), keywords))
+
 
 t_ignore = ' \t\r'   # whitespace
 
 # comments
-t_ignore_SILLYCOMM = r'\/\*\**\*\/'
-t_ignore_MULTICOMM = r'\/\*[^*]\/*([^*/]|[^*]\/|\*[^/])*\**\*\/'
-t_ignore_COMMENT = r'\/\/[^\n]*'
-t_ignore_DOCTEXT = r'\/\*\*([^*/]|[^*]\/|\*[^/])*\**\*\/'
-t_ignore_UNIXCOMMENT = r'\#[^\n]*'
+# t_ignore_SILLYCOMM = r'\/\*\**\*\/'
+# t_ignore_MULTICOMM = r'\/\*[^*]\/*([^*/]|[^*]\/|\*[^/])*\**\*\/'
+# t_ignore_COMMENT = r'\/\/[^\n]*'
+# t_ignore_DOCTEXT = r'\/\*\*([^*/]|[^*]\/|\*[^/])*\**\*\/'
+# t_ignore_UNIXCOMMENT = r'\#[^\n]*'
 
 # keywords
 current_module = sys.modules[__name__]
@@ -67,6 +70,29 @@ def t_error(t):
 def t_newline(t):
     r'\n+'
     t.lexer.lineno += len(t.value)
+
+
+def t_ignore_SILLYCOMM(t):
+    r'\/\*\**\*\/'
+    t.lexer.lineno += t.value.count('\n')
+
+
+def t_ignore_MULTICOMM(t):
+    r'\/\*[^*]\/*([^*/]|[^*]\/|\*[^/])*\**\*\/'
+    t.lexer.lineno += t.value.count('\n')
+
+
+def t_ignore_DOCTEXT(t):
+    r'\/\*\*([^*/]|[^*]\/|\*[^/])*\**\*\/'
+    t.lexer.lineno += t.value.count('\n')
+
+
+def t_ignore_UNIXCOMMENT(t):
+    r'\#[^\n]*'
+
+
+def t_ignore_COMMENT(t):
+    r'\/\/[^\n]*'
 
 
 def t_BOOLCONSTANT(t):
@@ -125,143 +151,12 @@ def t_LITERAL(t):
     return t
 
 
-def t_NAMESPACE(t):
-    r'namespace'
-    return t
-
-
-def t_INCLUDE(t):
-    r'include'
-    return t
-
-
-def t_VOID(t):
-    r'void'
-    return t
-
-
-def t_BOOL(t):
-    r'bool'
-    return t
-
-
-def t_BYTE(t):
-    r'byte'
-    return t
-
-
-def t_I16(t):
-    r'i16'
-    return t
-
-
-def t_I32(t):
-    r'i32'
-    return t
-
-
-def t_I64(t):
-    r'i64'
-    return t
-
-
-def t_DOUBLE(t):
-    r'double'
-    return t
-
-
-def t_STRING(t):
-    r'string'
-    return t
-
-
-def t_BINARY(t):
-    r'binary'
-    return t
-
-
-def t_MAP(t):
-    r'map'
-    return t
-
-
-def t_LIST(t):
-    r'list'
-    return t
-
-
-def t_SET(t):
-    r'set'
-    return t
-
-
-def t_ONEWAY(t):
-    r'oneway'
-    return t
-
-
-def t_TYPEDEF(t):
-    r'typedef'
-    return t
-
-
-def t_STRUCT(t):
-    r'struct'
-    return t
-
-
-def t_UNION(t):
-    r'union'
-    return t
-
-
-def t_EXCEPTION(t):
-    r'exception'
-    return t
-
-
-def t_EXTENDS(t):
-    r'extends'
-    return t
-
-
-def t_THROWS(t):
-    r'throws'
-    return t
-
-
-def t_SERVICE(t):
-    r'service'
-    return t
-
-
-def t_ENUM(t):
-    r'enum'
-    return t
-
-
-def t_CONST(t):
-    r'const'
-    return t
-
-
-def t_REQUIRED(t):
-    r'required'
-    return t
-
-
-def t_OPTIONAL(t):
-    r'optional'
-    return t
-
-
-# def t_REFERENCE(t):
-#     r'&'
-#     return t
-
-
 def t_IDENTIFIER(t):
     r'[a-zA-Z_](\.[a-zA-Z_0-9]|[a-zA-Z_0-9])*'
+
+    if t.value in keywords:
+        t.type = t.value.upper()
+        return t
     return t
 
 

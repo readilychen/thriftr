@@ -32,13 +32,19 @@ def p_include(p):
 
 def p_namespace(p):
     '''namespace : NAMESPACE namespace_scope IDENTIFIER'''
-    thrift.namespaces[p[3]] =  p[2]
+    thrift.namespaces[p[3]] = p[2]
 
 
 def p_namespace_scope(p):
     '''namespace_scope : '*'
                        | IDENTIFIER'''
     p[0] = p[1]
+
+
+def p_sep(p):
+    '''sep : ','
+           | ';'
+    '''
 
 
 def p_definition(p):
@@ -80,9 +86,8 @@ def p_const_list(p):
 
 
 def p_const_value_seq(p):
-    '''const_value_seq : const_value_seq ',' const_value
-                       | const_value_seq ','
-                       | const_value
+    '''const_value_seq : const_value sep const_value_seq
+                       | const_value const_value_seq
                        |'''
     _parse_seq(p)
 
@@ -93,10 +98,10 @@ def p_const_map(p):
 
 
 def p_const_map_items(p):
-    '''const_map_seq : const_map_seq ',' const_map_item
-                     | const_map_seq ','
-                     | const_map_item
-                     |'''
+    '''const_map_seq : const_map_item sep const_map_seq
+                     | const_map_item const_map_seq
+                     |
+    '''
     _parse_seq(p)
 
 
@@ -113,20 +118,24 @@ def p_typedef(p):
 def p_enum(p):
     '''enum : ENUM IDENTIFIER '{' enum_seq '}' '''
     thrift.enums[p[2]] = dict(p[4])
+    incrtor.num = 0
 
 
 def p_enum_seq(p):
-    '''enum_seq : enum_seq ',' enum_item
-                | enum_seq ','
-                | enum_item
-                |'''
-
+    '''enum_seq : enum_item sep enum_seq
+                | enum_item enum_seq
+                |
+    '''
     _parse_seq(p)
 
 
 def p_enum_item(p):
-    '''enum_item : IDENTIFIER '=' INTCONSTANT'''
-    p[0] = [p[1], p[3]]
+    '''enum_item : IDENTIFIER '=' INTCONSTANT
+                 | IDENTIFIER'''
+    if len(p) == 4:
+        p[0] = [p[1], p[3]]
+    elif len(p) == 2:
+        p[0] = [p[1], incrtor.incr()]
 
 
 def p_struct(p):
@@ -149,7 +158,7 @@ def p_service(p):
                | SERVICE IDENTIFIER EXTENDS IDENTIFIER '{' function_seq '}'
     '''
     extends = p[4] if len(p) == 8 else None
-    thrift.services[p[2]] = Service(extends=extends, apis=p[len(p)-2])
+    thrift.services[p[2]] = Service(extends=extends, apis=p[len(p) - 2])
 
 
 def p_function(p):
@@ -170,10 +179,10 @@ def p_function(p):
 
 
 def p_function_seq(p):
-    '''function_seq : function_seq ',' function
-                    | function_seq ','
-                    | function
-                    |'''
+    '''function_seq : function sep function_seq
+                    | function function_seq
+                    |
+    '''
     _parse_seq(p)
 
 
@@ -189,10 +198,10 @@ def p_function_type(p):
 
 
 def p_field_seq(p):
-    '''field_seq : field_seq ',' field
-                 | field_seq ','
-                 | field
-                 |'''
+    '''field_seq : field sep field_seq
+                 | field field_seq
+                 |
+    '''
     _parse_seq(p)
 
 
@@ -242,6 +251,7 @@ def p_container_type(p):
                       | set_type'''
     p[0] = p[1]
 
+
 def p_map_type(p):
     '''map_type : MAP '<' field_type ',' field_type '>' '''
     p[0] = MapType(['map', p[3], p[5]])
@@ -276,11 +286,21 @@ def parse(data):
 
 
 def _parse_seq(p):
-    if len(p) == 1:
-        p[0] = []
-    elif len(p) == 2:
-        p[0] = [p[1]]
+    if len(p) == 4:
+        p[0] = [p[1]] + p[3]
     elif len(p) == 3:
-        p[0] = p[1]
-    elif len(p) == 4:
-        p[0] = p[1] + [p[3]]
+        p[0] = [p[1]] + p[2]
+    elif len(p) == 1:
+        p[0] = []
+
+
+class Incrtor(object):
+
+    def __init__(self):
+        self.num = 0
+
+    def incr(self):
+        self.num += 1
+        return self.num
+
+incrtor = Incrtor()
