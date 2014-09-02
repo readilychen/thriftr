@@ -4,13 +4,8 @@
 from ply import yacc
 from . import ThriftSyntaxError
 from .lexer import tokens
+from .model import *
 
-dct = {
-    'include': [],
-    'namespace': [],
-    'const': {},
-    'typedef': {},
-}
 
 def p_error(p):
     raise ThriftSyntaxError(p)
@@ -24,6 +19,7 @@ def p_header(p):
     '''header : header_unit header
               |'''
 
+
 def p_header_unit(p):
     '''header_unit : include
                    | namespace'''
@@ -31,33 +27,33 @@ def p_header_unit(p):
 
 def p_include(p):
     '''include : INCLUDE LITERAL'''
+    thrift.includes.append(p[2])
 
 
 def p_namespace(p):
     '''namespace : NAMESPACE namespace_scope IDENTIFIER'''
+    thrift.namespaces[p[3]] =  p[2]
 
 
 def p_namespace_scope(p):
     '''namespace_scope : '*'
-                       | 'cpp'
-                       | 'java'
-                       | 'py'
-                       | 'perl'
-                       | 'rb'
-                       | 'cocoa'
-                       | 'csharp'
-                       | 'php'
-    '''
+                       | IDENTIFIER'''
+    p[0] = p[1]
 
 
 def p_definition(p):
-    '''definition : const
-                  | typedef
-                  | enum
-                  | struct
-                  | union
-                  | exception
-                  | service
+    '''definition : definition definition_unit
+                  |'''
+
+
+def p_definition_unit(p):
+    '''definition_unit : const
+                       | typedef
+                       | enum
+                       | struct
+                       | union
+                       | exception
+                       | service
     '''
 
 
@@ -69,13 +65,14 @@ def p_const_value(p):
     '''const_value : INTCONSTANT
                    | DUBCONSTANT
                    | LITERAL
+                   | BOOLCONSTANT
                    | IDENTIFIER
                    | const_list
                    | const_map'''
 
 
 def p_const_list(p):
-    '''const_list : '[' const_value_sea ']' '''
+    '''const_list : '[' const_value_seq ']' '''
 
 
 def p_const_value_seq(p):
@@ -97,7 +94,7 @@ def p_const_map_items(p):
 
 
 def p_const_map_item(p):
-    '''const_map_item : '\'' const_value '\'' ':' '\'' const_value '\'' '''
+    '''const_map_item : "'" const_value "'" ':' "'" const_value "'" '''
 
 
 def p_typedef(p):
@@ -144,12 +141,20 @@ def p_function(p):
     '''
 
 
+def p_function_seq(p):
+    '''function_seq : function_seq ',' function
+                    | function_seq ','
+                    | function
+                    |'''
+
+
 def p_throws(p):
     '''throws : THROWS '(' field_seq ')' '''
 
 
 def p_function_type(p):
-    '''function_type : field_type | VOID '''
+    '''function_type : field_type
+                     | VOID '''
 
 
 def p_field_seq(p):
@@ -212,4 +217,13 @@ def p_definition_type(p):
                        | container_type'''
 
 
-parser = yacc.yacc(debug=0, write_tables=0)
+parser = yacc.yacc(debug=True, write_tables=0)
+
+thrift = None
+
+
+def parse(data):
+    global thrift
+    thrift = Thrift()
+    parser.parse(data)
+    return thrift

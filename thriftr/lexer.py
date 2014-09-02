@@ -16,7 +16,6 @@ tokens = (
     'LITERAL',
     # identifier
     'IDENTIFIER',
-    'ST_IDENTIFIER',
     # keywords
     'NAMESPACE',
     'INCLUDE',
@@ -263,11 +262,6 @@ def t_REFERENCE(t):
 
 def t_IDENTIFIER(t):
     r'[a-zA-Z_](\.[a-zA-Z_0-9]|[a-zA-Z_0-9])*'
-    return t
-
-
-def t_ST_IDENTIFIER(t):
-    r'[a-zA-Z-](\.[a-zA-Z_0-9-]|[a-zA-Z_0-9-])*'
     return t
 
 

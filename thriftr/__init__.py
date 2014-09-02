@@ -11,10 +11,17 @@ License: MIT.
 
     >>> from thriftr import parse
     >>> thrift = parse(open('sample.thrift').read())
-    >>> thrift['includes']
-    ['shared.thrift']
-    >>> thrift['consts']
-    {'key': 'val', 'size': 10}
+
+Parsing results:
+
+  thrift:
+
+    {
+      'includes': [],
+      'namespaces': [],
+      'consts', {'k', 'v'},
+      ''
+    }
 
 """
 
