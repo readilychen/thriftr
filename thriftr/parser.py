@@ -167,8 +167,14 @@ def p_service(p):
     '''service : SERVICE IDENTIFIER '{' function_seq '}'
                | SERVICE IDENTIFIER EXTENDS IDENTIFIER '{' function_seq '}'
     '''
+    apis = {}
     extends = p[4] if len(p) == 8 else None
-    thrift.services[p[2]] = Service(extends=extends, apis=p[len(p) - 2])
+    functions = p[len(p) - 2]
+
+    for function in functions:
+        apis[function.name] = function
+
+    thrift.services[p[2]] = Service(extends=extends, apis=apis)
 
 
 def p_function(p):

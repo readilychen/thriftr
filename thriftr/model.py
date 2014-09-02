@@ -185,7 +185,7 @@ class Service(dict):
         super(Service, self).__init__()
 
         if apis is None:
-            apis = []
+            apis = {}
 
         self.extends = self['extends'] = extends
         self.apis = self['apis'] = apis
