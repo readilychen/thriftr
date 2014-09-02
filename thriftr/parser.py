@@ -59,6 +59,7 @@ def p_definition_unit(p):
 
 def p_const(p):
     '''const : CONST field_type IDENTIFIER '=' const_value '''
+    thrift.consts[p[3]] = p[2](p[5])
 
 
 def p_const_value(p):
@@ -69,6 +70,8 @@ def p_const_value(p):
                    | IDENTIFIER
                    | const_list
                    | const_map'''
+
+    p[0] = p[1]
 
 
 def p_const_list(p):
@@ -181,6 +184,7 @@ def p_field_type(p):
     '''field_type : IDENTIFIER
                   | base_type
                   | container_type'''
+    p[0] = p[1]
 
 
 def p_base_type(p):
@@ -192,6 +196,19 @@ def p_base_type(p):
                  | DOUBLE
                  | STRING
                  | BINARY'''
+
+    if p[1] == 'bool':
+        p[0] = Bool
+    elif p[1] == 'i16':
+        p[0] = I16
+    elif p[1] == 'i32':
+        p[0] = I32
+    elif p[1] == 'i64':
+        p[0] = I64
+    elif p[1] == 'double':
+        p[0] = Double
+    elif p[1] == 'string':
+        p[0] = String
 
 
 def p_container_type(p):
