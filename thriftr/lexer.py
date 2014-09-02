@@ -43,7 +43,7 @@ tokens = (
     'CONST',
     'REQUIRED',
     'OPTIONAL',
-    'REFERENCE',
+    # 'REFERENCE',
 )
 
 t_ignore = ' \t\r'   # whitespace
@@ -255,9 +255,9 @@ def t_OPTIONAL(t):
     return t
 
 
-def t_REFERENCE(t):
-    r'&'
-    return t
+# def t_REFERENCE(t):
+#     r'&'
+#     return t
 
 
 def t_IDENTIFIER(t):

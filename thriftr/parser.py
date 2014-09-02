@@ -84,14 +84,7 @@ def p_const_value_seq(p):
                        | const_value_seq ','
                        | const_value
                        |'''
-    if len(p) == 1:
-        p[0] = []
-    elif len(p) == 2:
-        p[0] = [p[1]]
-    elif len(p) == 3:
-        p[0] = p[1]
-    elif len(p) == 4:
-        p[0] = p[1] + [p[3]]
+    _parse_seq(p)
 
 
 def p_const_map(p):
@@ -104,15 +97,7 @@ def p_const_map_items(p):
                      | const_map_seq ','
                      | const_map_item
                      |'''
-
-    if len(p) == 1:
-        p[0] = []
-    elif len(p) == 2:
-        p[0] = [p[1]]
-    elif len(p) == 3:
-        p[0] = p[1]
-    elif len(p) == 4:
-        p[0] = p[1] + [p[3]]
+    _parse_seq(p)
 
 
 def p_const_map_item(p):
@@ -122,10 +107,12 @@ def p_const_map_item(p):
 
 def p_typedef(p):
     '''typedef : TYPEDEF definition_type IDENTIFIER'''
+    thrift.typedefs[p[3]] = p[2]
 
 
 def p_enum(p):
     '''enum : ENUM IDENTIFIER '{' enum_seq '}' '''
+    thrift.enums[p[2]] = dict(p[4])
 
 
 def p_enum_seq(p):
@@ -134,34 +121,52 @@ def p_enum_seq(p):
                 | enum_item
                 |'''
 
+    _parse_seq(p)
+
 
 def p_enum_item(p):
     '''enum_item : IDENTIFIER '=' INTCONSTANT'''
+    p[0] = [p[1], p[3]]
 
 
 def p_struct(p):
     '''struct : STRUCT IDENTIFIER '{' field_seq '}' '''
+    thrift.structs[p[2]] = p[4]
 
 
 def p_union(p):
     '''union : UNION IDENTIFIER '{' field_seq '}' '''
+    thrift.unions[p[2]] = p[4]
 
 
 def p_exception(p):
     '''exception : EXCEPTION IDENTIFIER '{' field_seq '}' '''
+    thrift.exceptions[p[2]] = p[4]
 
 
 def p_service(p):
     '''service : SERVICE IDENTIFIER '{' function_seq '}'
                | SERVICE IDENTIFIER EXTENDS IDENTIFIER '{' function_seq '}'
     '''
+    extends = p[4] if len(p) == 8 else None
+    thrift.services[p[2]] = Service(extends=extends, apis=p[len(p)-2])
 
 
 def p_function(p):
     '''function : ONEWAY function_type IDENTIFIER '(' field_seq ')' throws
+                | ONEWAY function_type IDENTIFIER '(' field_seq ')'
                 | function_type IDENTIFIER '(' field_seq ')' throws
                 | function_type IDENTIFIER '(' field_seq ')'
     '''
+
+    if len(p) == 8:
+        p[0] = Function(p[2], p[3], fields=p[5], throws=p[7], oneway=True)
+    elif len(p) == 7 and p[1] == 'oneway':
+        p[0] = Function(p[2], p[3], fields=p[5], throws=None, oneway=True)
+    elif len(p) == 7 and p[1] != 'oneway':
+        p[0] = Function(p[1], p[2], fields=p[4], throws=p[6], oneway=False)
+    elif len(p) == 6:
+        p[0] = Function(p[1], p[2], fields=p[4], throws=None, oneway=False)
 
 
 def p_function_seq(p):
@@ -169,15 +174,18 @@ def p_function_seq(p):
                     | function_seq ','
                     | function
                     |'''
+    _parse_seq(p)
 
 
 def p_throws(p):
     '''throws : THROWS '(' field_seq ')' '''
+    p[0] = p[3]
 
 
 def p_function_type(p):
     '''function_type : field_type
-                     | VOID '''
+                     | VOID'''
+    p[0] = p[1]
 
 
 def p_field_seq(p):
@@ -185,19 +193,27 @@ def p_field_seq(p):
                  | field_seq ','
                  | field
                  |'''
+    _parse_seq(p)
 
 
 def p_field(p):
-    '''field : field_id field_req field_type IDENTIFIER'''
+    '''field : field_id field_req field_type IDENTIFIER
+             | field_id field_req field_type IDENTIFIER '=' const_value'''
+    v = p[6] if len(p) == 7 else None
+    p[0] = Field(p[1], p[3], p[4], value=v, requirement=p[2])
 
 
 def p_field_id(p):
     '''field_id : INTCONSTANT ':' '''
+    p[0] = p[1]
 
 
 def p_field_req(p):
     '''field_req : REQUIRED
-                 | OPTIONAL'''
+                 | OPTIONAL
+                 |'''
+    if len(p) == 2:
+        p[0] = p[1]
 
 
 def p_field_type(p):
@@ -244,6 +260,7 @@ def p_set_type(p):
 def p_definition_type(p):
     '''definition_type : base_type
                        | container_type'''
+    p[0] = p[1]
 
 
 parser = yacc.yacc(debug=True, write_tables=0)
@@ -256,3 +273,14 @@ def parse(data):
     thrift = Thrift()
     parser.parse(data)
     return thrift
+
+
+def _parse_seq(p):
+    if len(p) == 1:
+        p[0] = []
+    elif len(p) == 2:
+        p[0] = [p[1]]
+    elif len(p) == 3:
+        p[0] = p[1]
+    elif len(p) == 4:
+        p[0] = p[1] + [p[3]]

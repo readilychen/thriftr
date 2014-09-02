@@ -15,6 +15,7 @@ class Thrift(dict):
                  unions=None,
                  exceptions=None,
                  services=None):
+        super(Thrift, self).__init__()
 
         if includes is None:
             includes = []
@@ -23,17 +24,17 @@ class Thrift(dict):
         if consts is None:
             consts = {}
         if enums is None:
-            enums = []
+            enums = {}
         if typedefs is None:
-            typedefs = []
+            typedefs = {}
         if structs is None:
-            structs = []
+            structs = {}
         if unions is None:
-            unions = []
+            unions = {}
         if exceptions is None:
-            exceptions = []
+            exceptions = {}
         if services is None:
-            services = []
+            services = {}
 
         self.includes = self['includes'] = includes
         self.namespaces = self['namespaces'] = namespaces
@@ -128,7 +129,7 @@ class MapType(ContainerType):  # ['map', k_type, v_type]
 
     def cast(self, data):
         dct = {}
-        keys = data.keys();
+        keys = data.keys()
 
         for key in keys:
             dct[self[1].cast(key)] = self[2].cast(data[key])
@@ -149,3 +150,42 @@ BASE_TYPE_MAPS = {
     'string': StringType,
     'binary': BinaryType
 }
+
+
+class Field(dict):
+
+    def __init__(self, id, type, name, value=None, requirement=None):
+        super(Field, self).__init__()
+        self.id = self['id'] = id
+        self.type = self['type'] = type
+        self.name = self['name'] = name
+        self.value = self['value'] = value
+        self.requirement = self['requirement'] = requirement
+
+
+class Function(dict):
+
+    def __init__(self, type, name, fields=None, throws=None, oneway=False):
+        super(Function, self).__init__()
+
+        if fields is None:
+            fields = []
+        if throws is None:
+            throws = []
+        self.type = self['type'] = type
+        self.name = self['name'] = name
+        self.fields = self['field'] = fields
+        self.throws = self['throws'] = throws
+        self.oneway = self['oneway'] = oneway
+
+
+class Service(dict):
+
+    def __init__(self, extends=None, apis=None):
+        super(Service, self).__init__()
+
+        if apis is None:
+            apis = []
+
+        self.extends = self['extends'] = extends
+        self.apis = self['apis'] = apis
