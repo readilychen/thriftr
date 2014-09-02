@@ -4,6 +4,7 @@
 # develop
 venv
 venv-py3
+venv-pypy
 test-local
 test-local.py
 parser.out

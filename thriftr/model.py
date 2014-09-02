@@ -1,6 +1,11 @@
 # coding=utf8
 
-from ._compat import *
+import sys
+
+if sys.version_info[0] < 3:
+    bytes_ = bytes
+else:
+    bytes_ = lambda x: bytes(x, 'utf8')
 
 
 class Thrift(dict):
