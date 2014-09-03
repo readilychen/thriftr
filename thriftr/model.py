@@ -25,7 +25,7 @@ class Thrift(dict):
         if includes is None:
             includes = []
         if namespaces is None:
-            namespaces = {}    # {identifier: scope}
+            namespaces = {}
         if consts is None:
             consts = {}
         if enums is None:

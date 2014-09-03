@@ -289,7 +289,7 @@ def p_definition_type(p):
     p[0] = p[1]
 
 
-parser = yacc.yacc(debug=True, write_tables=0)
+parser = yacc.yacc(debug=False, write_tables=0)
 
 thrift = None
 
