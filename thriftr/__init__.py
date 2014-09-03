@@ -13,11 +13,7 @@ License: MIT.
     >>> thrift = parse(open('sample.thrift').read())
 """
 
-__version__ = '0.0.1'
-
-
-class ThriftSyntaxError(Exception):
-    pass
+__version__ = '0.0.2'
 
 
 from .parser import parse

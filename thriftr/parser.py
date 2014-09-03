@@ -5,11 +5,12 @@
 from ply import yacc
 from .lexer import tokens
 from .model import *
-from .exc import ThriftSyntaxError
+from .exc import ThriftGrammerError
 
 
 def p_error(p):
-    raise ThriftSyntaxError(p)
+    raise ThriftGrammerError("Grammer error '%s' at line %d" %
+                             (p.value, p.lineno))
 
 
 def p_start(p):
