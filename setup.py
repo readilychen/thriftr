@@ -11,6 +11,8 @@ setup(
     packages=['thriftr'],
     url='https://github.com/hit9/thriftr.git',
     license='MIT',
+    install_requires=['ply'],
+    zip_safe=False,
     classifiers=[
         "Topic :: Software Development",
         "Development Status :: 2 - Pre-Alpha",
