@@ -1,6 +1,11 @@
 *.pyc
 *.sw[op]
 
+# build
+build
+dist
+*.egg-info*
+
 # develop
 venv
 venv-py3
