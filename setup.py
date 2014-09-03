@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name='thriftr',
-    version='0.0.1',
+    version='0.0.2',
     author='hit9',
     author_email='nz2324@126.com',
     description='Pure python apache thrift parser',
