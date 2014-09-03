@@ -17,7 +17,7 @@ parse(data)
 NOTE: this parser will be merged into [eleme/thriftpy](https://github.com/eleme/thriftpy.git),
 
 ```python
-from thriftpy.parser import parse
+from thriftpy import parse
 
 data = open('sample.thrift').read()
 parse(data)

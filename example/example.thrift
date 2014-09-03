@@ -72,7 +72,7 @@ namespace perl tutorial
  * Thrift lets you do typedefs to get pretty names for your types. Standard
  * C style here.
  */
-typedef i32 MyInteger
+typedef 32 MyInteger
 
 /**
  * Thrift also lets you define constants for use across languages. Complex
