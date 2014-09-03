@@ -119,14 +119,15 @@ def p_enum(p):
     '''enum : ENUM IDENTIFIER '{' enum_seq '}' '''
 
     dct = dict(p[4])
+    vals = list(dct.values())
     num = 0
-    vals = dct.values()
 
     for key in dct:
         if dct[key] is None:
             while num in vals:
                 num += 1
             dct[key] = num
+            vals.append(num)
 
     thrift.enums[p[2]] = dct
 
