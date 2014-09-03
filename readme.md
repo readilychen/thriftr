@@ -12,4 +12,4 @@ data = open('sample.thrift').read()
 parse(data)
 ```
 
-[example][example]
+[example](example)
