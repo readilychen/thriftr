@@ -1,3 +1,5 @@
+# thriftr is now merged into github.com/eleme/thriftpy.git 
+
 thriftr
 -------
 
